@@ -6,6 +6,19 @@ How a cluster becomes a Grid site on v0.3.0-rc.3, under Local membership with AC
 
 Argo CD runs on the hub and installs everything else from the tenant repo, ACM included. Argo syncs from git, so run it from your own fork. Point the fork's Argo sources at itself, once, and push:
 
+Install OpenShift GitOps before applying the root ApplicationSet. Do not install
+ACM or cert-manager manually first: the selected profile installs them through
+Argo CD. The combined-hub profile gets ACM from `apps/acm` and cert-manager
+from the RHOAI app; the dedicated-hub profile installs both as separate apps.
+Installing either operator first can leave an OLM-created OperatorGroup beside
+the OperatorGroup managed by Argo CD. OLM then fails the operator CSV with
+`TooManyOperatorGroups`. These manifests target the standard namespaces
+`open-cluster-management` and `cert-manager-operator`; they do not discover or
+adopt preinstalled operators, especially installations in other namespaces.
+Start with neither operator installed. If either is already present, pause
+onboarding and plan an explicit migration before applying the root
+ApplicationSet. Do not uninstall a running hub or operator as a first step.
+
 ```bash
 git clone https://github.com/<you>/ai-grid-tenant.git
 cd ai-grid-tenant
