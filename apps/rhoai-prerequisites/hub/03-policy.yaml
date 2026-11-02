@@ -258,40 +258,6 @@ spec:
         apiVersion: policy.open-cluster-management.io/v1
         kind: ConfigurationPolicy
         metadata:
-          name: rhoai-image-mirror
-        spec:
-          remediationAction: enforce
-          severity: low
-          pruneObjectBehavior: DeleteAll
-          object-templates:
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: config.openshift.io/v1
-                kind: ImageDigestMirrorSet
-                metadata:
-                  name: quay-registry
-                spec:
-                  imageDigestMirrors:
-                    - source: registry.redhat.io/rhoai
-                      mirrors:
-                        - quay.io/rhoai
-                      mirrorSourcePolicy: NeverContactSource
-                    - source: registry.redhat.io/rhaii
-                      mirrors:
-                        - registry.stage.redhat.io/rhaii
-                      mirrorSourcePolicy: NeverContactSource
-                    - source: registry.redhat.io/rhaii-early-access
-                      mirrors:
-                        - registry.stage.redhat.io/rhaii-early-access
-                      mirrorSourcePolicy: NeverContactSource
-                    - source: registry.redhat.io/rhaii-fast
-                      mirrors:
-                        - registry.stage.redhat.io/rhaii-fast
-                      mirrorSourcePolicy: NeverContactSource
-    - objectDefinition:
-        apiVersion: policy.open-cluster-management.io/v1
-        kind: ConfigurationPolicy
-        metadata:
           name: rhoai-quay-pull-secret
         spec:
           remediationAction: enforce

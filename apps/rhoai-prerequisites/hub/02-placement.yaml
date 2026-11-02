@@ -32,3 +32,22 @@ spec:
               operator: NotIn
               values:
                 - "true"
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: rhoai-image-mirror-clusters
+  namespace: rhoai-prerequisites
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  clusterSets:
+    - global
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+            - key: ai-grid/registry-mirror-management
+              operator: NotIn
+              values:
+                - external
