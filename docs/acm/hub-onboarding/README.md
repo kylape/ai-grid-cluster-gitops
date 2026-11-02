@@ -130,7 +130,58 @@ The hub runs MaaS's shared state: the maas-db primary, Keycloak and Limitador's 
 
 The profile sets two grid-bootstrap values for a new grid on its own hub: external.certManager.ca.mode Generate, and managedClusters.createClusterSetBinding true, since no RHOAI app binds ClusterSet global into redhat-ai-grid there. Keep Generate for the life of the hub: its CA is a cert-manager Certificate.
 
-rhoai-prerequisites delivers the quay.io/rhoai mirror and pull Secret to every cluster in global, the hub included. The grid-enrollment image needs them, so set RHOAI_QUAY_PULL_SECRET before bootstrap.sh, as for any hub. Without it, grid-bootstrap's CA Job stays in ImagePullBackOff. Applying the mirror reboots each node once, so a single-node hub drops out for a few minutes. To avoid the mirror, pin the grid-enrollment image to the public ODH build in the grid-bootstrap values.
+rhoai-prerequisites delivers the image mirror and pull Secret to every cluster
+in `global`, the hub included. Set `RHOAI_QUAY_PULL_SECRET` before
+`bootstrap.sh`; the policy uses it for RHOAI registry pulls. The pull-secret
+policy can also distribute Stage credentials for `rhaii*` model images when
+`RHOAI_STAGE_PULL_SECRET` is available.
+
+If another control plane manages a cluster's mirror, set the
+`ai-grid/registry-mirror-management=external` label on its ACM `ManagedCluster`
+before the mirror policy is applied. For a HyperShift hosted cluster, configure
+the mirror on its `HostedCluster` in the management cluster. Set the label on
+the ACM hub first, then merge these entries into the HostedCluster's existing
+`spec.imageContentSources` list:
+
+```yaml
+spec:
+  imageContentSources:
+    - source: registry.redhat.io/rhoai
+      mirrors:
+        - quay.io/rhoai
+    - source: registry.redhat.io/rhaii
+      mirrors:
+        - registry.stage.redhat.io/rhaii
+    - source: registry.redhat.io/rhaii-early-access
+      mirrors:
+        - registry.stage.redhat.io/rhaii-early-access
+    - source: registry.redhat.io/rhaii-fast
+      mirrors:
+        - registry.stage.redhat.io/rhaii-fast
+```
+
+For example, edit the resource in the HyperShift management cluster with
+`oc --context "$MANAGEMENT_CONTEXT" edit hostedcluster <name> -n <namespace>`.
+Do not replace other entries already in the list. HyperShift turns this field
+into the guest cluster's digest mirror configuration; changing it rolls out all
+existing NodePools. See the [HyperShift image-content-sources guide](https://hypershift-docs.netlify.app/how-to/disconnected/image-content-sources/)
+and [HostedCluster API](https://github.com/openshift/hypershift/blob/main/api/hypershift/v1beta1/hostedcluster_types.go).
+
+The HostedCluster field accepts only `source` and `mirrors`, so it cannot
+express this repository's `mirrorSourcePolicy: NeverContactSource`. When the
+field omits a mirror source policy, OpenShift can fall back to the source
+registry if mirror pulls fail. If that fallback is unacceptable, confirm a
+supported configuration for the installed HyperShift version before applying
+these entries. See the [OpenShift 4.22 IDMS API](https://docs.openshift.com/container-platform/4.22/html/config_apis/imagedigestmirrorset-config-openshift-io-v1).
+
+This label excludes only the GitOps `ImageDigestMirrorSet` policy for that
+cluster; the remaining prerequisite policies still apply. It does not supply
+registry credentials.
+
+Applying an `ImageDigestMirrorSet` can reboot each node during the Machine
+Config rollout. To avoid GitOps mirror management without an external mirror,
+pin the grid-enrollment image to the public ODH build in the grid-bootstrap
+values.
 
 A hub with no load balancer labels local-cluster ai-grid/metallb-pool=<first>-<last> with a free range, so its Submariner gateways get an address.
 
