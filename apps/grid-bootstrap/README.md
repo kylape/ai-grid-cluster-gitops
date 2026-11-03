@@ -5,10 +5,22 @@ This hub Application deploys the existing `grid-enrollment` chart from
 inventory-based enrollment through the common ACM/OCM APIs. The chart itself
 has no Argo-specific switch.
 
-The existing `redhat-ai-grid/grid-ca` Issuer continues to use `grid-ca-key`.
-Bootstrap never regenerates the CA. Selected clusters have the `ai-grid/enabled`
-label and use their ManagedCluster name as the site identity. The hub is enrolled
-through the same flow as other members.
+On a combined hub, the RHOAI enrollment service's bootstrap hook creates the
+Grid CA in `redhat-ai-grid/grid-ca-key` and writes its public trust bundle.
+This Application uses `external.certManager.ca.mode: Existing`: it creates the
+`grid-ca` Issuer using that same key, without rendering a second CA-generating
+Certificate for the Secret. The dedicated-hub profile overrides the mode to
+`Generate`, since that profile does not run the RHOAI enrollment service.
+
+This separation matters because the RHOAI bootstrap hook and cert-manager both
+write `grid-ca-key` if both are configured to generate a CA. Their Applications
+reconcile independently. If cert-manager replaces the CA certificate in
+`grid-ca-key` after the bootstrap has written `grid-ca-bundle` or distributed
+`grid-ca` copies, those copies can hold different CA certificates. The
+enrollment hook detects that mismatch and
+stops rather than changing the Grid's trust identity. Selected clusters have
+the `ai-grid/enabled` label and use their ManagedCluster name as the site
+identity. The hub is enrolled through the same flow as other members.
 
 The chart requests a Certificate per selected member, delivers the identity and
 public CA bundle, and installs a read-only GridSite observer per cluster. It
