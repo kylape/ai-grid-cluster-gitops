@@ -36,5 +36,7 @@ external:
       create: true
       name: grid-ca
     ca:
-      # Generate a new grid CA on this fresh hub and retain it for its lifetime.
-      mode: Generate
+      # On a combined hub, the RHOAI enrollment service owns CA creation.
+      # This chart reuses its grid-ca-key; the dedicated-hub profile overrides
+      # this to Generate because no RHOAI enrollment service runs there.
+      mode: Existing
