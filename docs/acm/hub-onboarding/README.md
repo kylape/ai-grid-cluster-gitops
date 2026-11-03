@@ -130,7 +130,16 @@ acm-models brings the sample model and its MaaS objects, to AI Grid sites by rol
 
 The hub runs MaaS's shared state: the maas-db primary, Keycloak and Limitador's Redis. Sites reach them over Submariner, and ingress and combined sites get a maas-db read replica. To hold that state on one site instead, label it ai-grid/external-services=true, and [apps/external-services](../../../apps/external-services) installs them there. Do not use both. The default ApplicationSet skips external-services, because a combined hub runs them itself.
 
-The profile sets two grid-bootstrap values for a new grid on its own hub: external.certManager.ca.mode Generate, and managedClusters.createClusterSetBinding true, since no RHOAI app binds ClusterSet global into redhat-ai-grid there. Keep Generate for the life of the hub: its CA is a cert-manager Certificate.
+The dedicated-hub profile sets `external.certManager.ca.mode: Generate` and
+`managedClusters.createClusterSetBinding: true`. It has no RHOAI enrollment
+service to create the Grid CA, and it owns the ClusterSet binding in place of
+the RHOAI app. Keep that CA for the life of the grid.
+
+On a combined hub, the RHOAI enrollment service creates the CA. The
+`grid-bootstrap` Application uses `external.certManager.ca.mode: Existing` and
+creates a cert-manager Issuer that reads the enrollment service's
+`grid-ca-key`. This avoids having both Applications generate into the same
+Secret while keeping cert-manager responsible for issuing site certificates.
 
 rhoai-prerequisites delivers the image mirror and pull Secret to every cluster
 in `global`, the hub included. Set `RHOAI_QUAY_PULL_SECRET` before
