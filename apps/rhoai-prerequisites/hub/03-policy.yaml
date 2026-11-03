@@ -242,8 +242,10 @@ spec:
             {{- if $sourceAuth -}}
             {{- $_ := set $preRelease "quay.io/rhoai" $sourceAuth -}}
             {{- end -}}
-            {{- $mergedAuths := mustMerge (index $globalConfig "auths") $preRelease -}}
-            {{- $mergedConfig := mustMerge $globalConfig (dict "auths" $mergedAuths) -}}
+            {{- range $registry, $auth := $preRelease -}}
+            {{- $_ := set (index $globalConfig "auths") $registry $auth -}}
+            {{- end -}}
+            {{- $mergedConfig := $globalConfig -}}
             - complianceType: musthave
               objectDefinition:
                 apiVersion: v1
