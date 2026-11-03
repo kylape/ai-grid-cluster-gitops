@@ -15,6 +15,9 @@ spec:
         revision: hub-onboarding
         files:
           - path: apps/*/application.yaml
+          # Only the dedicated-hub profile installs cert-manager, registers clusters and runs MaaS on a site.
+          - path: apps/cert-manager/application.yaml
+            exclude: true
           - path: apps/argo-registration/application.yaml
             exclude: true
           - path: apps/maas-home/application.yaml
