@@ -53,7 +53,10 @@ fi
 kubectl "${kubectl_args[@]}" create namespace "$namespace" --dry-run=client -o yaml |
   kubectl "${kubectl_args[@]}" apply -f -
 
-docker_config_json="$(jq -n '{auths: ({"quay.io": {auth: env.RHOAI_QUAY_PULL_SECRET}}
+docker_config_json="$(jq -n '{auths: ({
+  "quay.io": {auth: env.RHOAI_QUAY_PULL_SECRET},
+  "quay.io/rhoai": {auth: env.RHOAI_QUAY_PULL_SECRET}
+}
   + if (env.RHOAI_STAGE_PULL_SECRET // "") != "" then {"registry.stage.redhat.io": {auth: env.RHOAI_STAGE_PULL_SECRET}} else {} end)}')"
 docker_config_json_b64="$(printf '%s' "$docker_config_json" | base64 -w0)"
 
