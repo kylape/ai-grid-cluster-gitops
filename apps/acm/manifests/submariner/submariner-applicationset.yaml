@@ -4,7 +4,9 @@ metadata:
   name: acm-submariner
   namespace: openshift-gitops
   annotations:
-    argocd.argoproj.io/sync-wave: "7"
+    # Request the Submariner add-on before the wave-2 Broker resource, whose CRD
+    # is supplied by that add-on on the hub.
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
