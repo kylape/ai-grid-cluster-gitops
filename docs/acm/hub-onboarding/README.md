@@ -9,7 +9,8 @@ Argo CD runs on the hub and installs everything else from the tenant repo, ACM i
 Install OpenShift GitOps before applying the root ApplicationSet. Do not install
 ACM or cert-manager manually first: the selected profile installs them through
 Argo CD. The combined-hub profile gets ACM from `apps/acm` and cert-manager
-from the RHOAI app; the dedicated-hub profile installs both as separate apps.
+from `apps/cert-manager`; the dedicated-hub profile also installs both as
+separate apps.
 Installing either operator first can leave an OLM-created OperatorGroup beside
 the OperatorGroup managed by Argo CD. OLM then fails the operator CSV with
 `TooManyOperatorGroups`. These manifests target the standard namespaces
@@ -67,7 +68,13 @@ docs/acm/cluster-onboarding/import-managed-cluster.sh --spoke-context <spoke> --
 
 The hub manages the grid: CA, grid ID, policies. It needs no Grid CRDs. Running Grid workloads on it is optional.
 
-Needs ACM as above and cert-manager. On a hub that is also a site, the RHOAI app supplies four things grid-bootstrap depends on: cert-manager, the redhat-ai-grid namespace, ClusterSet global bound into that namespace, and, through rhoai-prerequisites, the quay.io/rhoai mirror and pull Secret its pre-release image needs. A hub that is not a site gets them from the [dedicated-hub profile](#dedicated-hub).
+Needs ACM as above and cert-manager. On a hub that is also a site, the RHOAI
+app supplies the `redhat-ai-grid` namespace and ClusterSet `global` binding.
+The root ApplicationSet installs cert-manager separately because
+`grid-bootstrap` creates a cert-manager Issuer. `rhoai-prerequisites` supplies
+the quay.io/rhoai mirror and pull Secret needed by its pre-release image. A hub
+that is not a site gets the namespace and binding from the
+[dedicated-hub profile](#dedicated-hub).
 
 Install grid-enrollment on the hub with the grid-bootstrap app. Its values, [apps/grid-bootstrap/values.yaml](../../../apps/grid-bootstrap/values.yaml):
 
@@ -119,7 +126,7 @@ A dedicated hub runs ACM, cert-manager and grid-enrollment, and no Grid or RHOAI
 BOOTSTRAP_PROFILE=dedicated-hub ./bootstrap.sh
 ```
 
-Its root ApplicationSet, [bootstrap/dedicated-hub/applicationset.yaml](../../../bootstrap/dedicated-hub/applicationset.yaml), syncs acm, acm-models, ai-grid-o11y, ai-grid-policies, ai-grid-spokes, argo-registration, cert-manager, console, external-secrets, gitops-config, grid-bootstrap, keycloak, limitador-redis, maas-db, external-services, metallb, odf, rhoai and rhoai-prerequisites. ACM syncs the full [apps/acm/manifests](../../../apps/acm/manifests) — core, observability, search and Submariner — with [apps/odf](../../../apps/odf) supplying the object storage observability needs. The default ApplicationSet skips [apps/cert-manager](../../../apps/cert-manager), because on a combined hub the RHOAI app installs cert-manager.
+Its root ApplicationSet, [bootstrap/dedicated-hub/applicationset.yaml](../../../bootstrap/dedicated-hub/applicationset.yaml), syncs acm, acm-models, ai-grid-o11y, ai-grid-policies, ai-grid-spokes, argo-registration, cert-manager, console, external-secrets, gitops-config, grid-bootstrap, keycloak, limitador-redis, maas-db, external-services, metallb, odf, rhoai and rhoai-prerequisites. ACM syncs the full [apps/acm/manifests](../../../apps/acm/manifests) — core, observability, search and Submariner — with [apps/odf](../../../apps/odf) supplying the object storage observability needs. The default root ApplicationSet also installs [apps/cert-manager](../../../apps/cert-manager), which provides the Issuer API used by grid-bootstrap.
 
 The root generates all Applications except ODF directly from Git, so ACM and argo-registration can start on a fresh hub without an existing Argo cluster registration. ODF is generated separately once the local-cluster registration carries the openshiftVersion-major-minor label; its operator channel then matches that version. Until registration and the version label are available, ODF is absent and ACM observability may wait for its object storage. Verify that acm and argo-registration exist immediately, then check registration and the version label if odf does not appear. An ApplicationSet success condition alone does not confirm that the expected Applications were generated.
 
