@@ -1,8 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  # Both combined and dedicated hubs need cert-manager for the grid-ca Issuer.
-  # The selected root ApplicationSet discovers this Application from Git.
+  # Only a dedicated hub syncs this. On a hub that is also a site, the RHOAI
+  # app installs cert-manager, so the default root ApplicationSet excludes it.
   name: cert-manager
   namespace: openshift-gitops
 spec:
