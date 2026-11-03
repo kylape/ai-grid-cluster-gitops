@@ -9,7 +9,8 @@ Argo CD runs on the hub and installs everything else from the tenant repo, ACM i
 Install OpenShift GitOps before applying the root ApplicationSet. Do not install
 ACM or cert-manager manually first: the selected profile installs them through
 Argo CD. The combined-hub profile gets ACM from `apps/acm` and cert-manager
-from the RHOAI app; the dedicated-hub profile installs both as separate apps.
+from `apps/cert-manager`; the dedicated-hub profile also installs both as
+separate apps.
 Installing either operator first can leave an OLM-created OperatorGroup beside
 the OperatorGroup managed by Argo CD. OLM then fails the operator CSV with
 `TooManyOperatorGroups`. These manifests target the standard namespaces
@@ -64,7 +65,13 @@ docs/acm/cluster-onboarding/import-managed-cluster.sh --spoke-context <spoke> --
 
 The hub manages the grid: CA, grid ID, policies. It needs no Grid CRDs. Running Grid workloads on it is optional.
 
-Needs ACM as above and cert-manager. On a hub that is also a site, the RHOAI app supplies four things grid-bootstrap depends on: cert-manager, the redhat-ai-grid namespace, ClusterSet global bound into that namespace, and, through rhoai-prerequisites, the quay.io/rhoai mirror and pull Secret its pre-release image needs. A hub that is not a site gets them from the [dedicated-hub profile](#dedicated-hub).
+Needs ACM as above and cert-manager. On a hub that is also a site, the RHOAI
+app supplies the `redhat-ai-grid` namespace and ClusterSet `global` binding.
+The root ApplicationSet installs cert-manager separately because
+`grid-bootstrap` creates a cert-manager Issuer. `rhoai-prerequisites` supplies
+the quay.io/rhoai mirror and pull Secret needed by its pre-release image. A hub
+that is not a site gets the namespace and binding from the
+[dedicated-hub profile](#dedicated-hub).
 
 Install grid-enrollment on the hub with the grid-bootstrap app. Its values, [apps/grid-bootstrap/values.yaml](../../../apps/grid-bootstrap/values.yaml):
 
@@ -116,7 +123,7 @@ A dedicated hub runs ACM, cert-manager and grid-enrollment, and no Grid or RHOAI
 BOOTSTRAP_PROFILE=dedicated-hub ./bootstrap.sh
 ```
 
-Its root ApplicationSet, [bootstrap/dedicated-hub/applicationset.yaml](../../../bootstrap/dedicated-hub/applicationset.yaml), syncs acm, acm-models, ai-grid-policies, ai-grid-spokes, argo-registration, cert-manager, gitops-config, grid-bootstrap, maas-home, rhoai and rhoai-prerequisites. ACM gets [core](../../../apps/acm/manifests/core) only, since observability needs object storage and Submariner needs a site. The default ApplicationSet skips [apps/cert-manager](../../../apps/cert-manager), because on a combined hub the RHOAI app installs cert-manager.
+Its root ApplicationSet, [bootstrap/dedicated-hub/applicationset.yaml](../../../bootstrap/dedicated-hub/applicationset.yaml), syncs acm, acm-models, ai-grid-policies, ai-grid-spokes, argo-registration, cert-manager, gitops-config, grid-bootstrap, maas-home, rhoai and rhoai-prerequisites. ACM gets [core](../../../apps/acm/manifests/core) only, since observability needs object storage and Submariner needs a site. The default root ApplicationSet also installs [apps/cert-manager](../../../apps/cert-manager), which provides the Issuer API used by grid-bootstrap.
 
 [apps/argo-registration](../../../apps/argo-registration) registers every cluster in global with Argo CD, which on a combined hub acm-models does, so the default ApplicationSet skips it. The rhoai app installs RHOAI, and a provider gateway where apps/rhoai/provider-gateway-<cluster>.yaml exists, on each AI Grid site, as [apps/ai-grid-spokes](../../../apps/ai-grid-spokes) selects them by label and role.
 
