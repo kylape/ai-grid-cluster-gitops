@@ -39,6 +39,14 @@ discover it dynamically:
 
    ```bash
    oc label managedcluster <name> ai-grid/machine-network=192.0.2.0_24
+   ```
+
+   For HyperShift sites whose worker addresses are reachable within the private
+   host-cluster network, also set
+   `ai-grid/submariner-private-network=true`. This disables Submariner's
+   LoadBalancer Service and selects one gateway on the private node address.
+   The lab mode is not redundant: use it only when gateway-to-gateway UDP
+   reachability has been established.
 
    A site without a load-balancer provider also declares an L2 range for
    MetalLB (see `apps/metallb/README.md`); sites that have one skip this:
@@ -91,10 +99,14 @@ as an override when present.
 - A default StorageClass. RHOAI monitoring claims 20Gi for metrics and 10Gi for
   traces on every site. An ingress or combined site claims 20Gi for its MaaS
   database replica. The sample models pull weights at start and claim nothing.
-- Submariner gateway nodes. Every managed cluster gets the add-on with two
-  gateways and Globalnet. Label two workers `submariner.io/gateway=true` on each
-  cluster, the hub included, because the add-on has no cloud credentials to do it. Over it the site reaches the hub's enrollment service
-  and the MaaS database primary.
+- Submariner gateway nodes. The add-on defaults to two gateways and Globalnet;
+  label two workers `submariner.io/gateway=true` on each cluster for that
+  redundant setup. For HyperShift guests sharing a private, mutually reachable
+  host network, label the ACM ManagedCluster
+  `ai-grid/submariner-private-network=true` to use one gateway on private node
+  addresses and no LoadBalancer Service. That mode has no gateway failover and
+  requires UDP tunnel reachability between the guests. Over the tunnel, sites
+  reach the hub's shared MaaS services.
 - A default router the other sites can reach. Peers dial the provider gateway
   through it on 443 with TLS passthrough.
 - DNS that returns valid AAAA records for the router's wildcard names, or

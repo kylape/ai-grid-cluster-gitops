@@ -25,12 +25,19 @@ worker Nodes are therefore labeled without cluster-specific Node names in Git.
 The policy lives in its own namespace so its `ManagedClusterSetBinding` can be
 named `global`, as required by ACM, without colliding with the existing binding
 in `openshift-gitops`.
-Submariner is configured for two gateways because cross-cluster connectivity
-is required by the shared database and model-serving topology. Each managed
-cluster therefore needs at least two pure worker Nodes.
+Submariner defaults to two gateways because cross-cluster connectivity is
+required by the shared database and model-serving topology. Each managed
+cluster therefore needs at least two pure worker Nodes for the default,
+redundant setup.
 The `acm-submariner` ApplicationSet deploys the add-on and configuration on
-every managed cluster. On ROSA, the gateways use a load-balancer Service
-instead of node ports.
+every managed cluster. On ROSA, the gateways use a load-balancer Service.
+
+For HyperShift sites whose worker-node addresses are reachable over a private
+host-cluster network, set `ai-grid/submariner-private-network=true` on the ACM
+ManagedCluster. The ApplicationSet then disables the gateway LoadBalancer
+Service and uses one gateway on the node's private IP. This is a single-gateway
+lab mode with no gateway failover; verify private UDP reachability between the
+sites before relying on their service exports.
 
 ### Adding or removing an admin
 

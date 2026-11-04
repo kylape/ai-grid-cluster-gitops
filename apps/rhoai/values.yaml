@@ -7,6 +7,12 @@ components:
         namespace: openshift-ingress
         annotations:
           ai-grid/maas-gateway-hostname-prefix: maas
+          networking.istio.io/service-type: ClusterIP
+
+  kserve:
+    gateway:
+      annotations:
+        networking.istio.io/service-type: ClusterIP
 
 operator:
   type: rhoai

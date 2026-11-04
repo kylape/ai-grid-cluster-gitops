@@ -195,9 +195,12 @@ Config rollout. To avoid GitOps mirror management without an external mirror,
 pin the grid-enrollment image to the public ODH build in the grid-bootstrap
 values.
 
-A hub with no load balancer labels local-cluster ai-grid/metallb-pool=<first>-<last> with a free range, so its Submariner gateways get an address.
+A hub that needs externally reachable LoadBalancer Services can opt into
+MetalLB with a free L2 range. For HyperShift guests that communicate over a
+private host network, set `ai-grid/submariner-private-network=true` instead to
+use Submariner's node addresses without a gateway LoadBalancer Service.
 
-Verify: an Application for each app in that list, plus dedicated-hub-root and the ones acm-models and the site ApplicationSets generate, Synced and Healthy (console only after [its Secrets](#provider-console) exist), the MultiClusterHub Running, and local-cluster joined and available. Do not label local-cluster with ai-grid/enabled; that label alone would make the hub a site.
+Verify: an Application for each app in that list, plus dedicated-hub-root and the ones acm-models and the site ApplicationSets generate, Synced and Healthy (console only after [its Secrets](#provider-console) exist), the MultiClusterHub Running, and local-cluster joined and available. For this combined hub run, label `local-cluster` `ai-grid/enabled=true` and `ai-grid/role=combined` so the hub provides both ingress and model-serving roles.
 
 ## Provider console
 

@@ -50,8 +50,8 @@ spec:
     - matrix:
         generators:
           - git:
-              repoURL: https://github.com/ai-grid-cloud/ai-grid-cluster-gitops.git
-              revision: HEAD
+              repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
+              revision: hub-onboarding
               files:
                 - path: apps/odf/application.yaml
           - clusters:

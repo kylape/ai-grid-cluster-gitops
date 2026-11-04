@@ -2,7 +2,9 @@
 clusterName: ""
 # -- Namespace where the Submariner operator is installed.
 installNamespace: submariner-operator
-# -- Use a load-balancer Service for the Submariner gateways.
+# -- Default to a LoadBalancer Service for cloud sites. The ApplicationSet
+# turns this off for ManagedClusters labelled ai-grid/submariner-private-network=true.
 loadBalancerEnable: true
-# -- Number of gateway replicas.
+# -- Default gateway count for redundant cloud sites. The ApplicationSet uses
+# one gateway for private-network lab sites with a single worker.
 gateways: 2
