@@ -26,14 +26,14 @@ Beyond the [dependencies](../README.md#dependencies):
   queries must return either an address or `NOERROR` with an empty answer; an
   `AAAA` answered with `NXDOMAIN` makes the grid operator's lookups fail (see
   [cluster onboarding](../cluster-onboarding/README.md)).
-- **A load balancer for the gateways the site's role needs** (the MaaS
-  gateway on an ingress or combined site, the serving gateway where models
-  run): an existing one is fine; a site without one declares an L2 range and
-  gets MetalLB (below). Submariner's gateways default to a LoadBalancer Service
-  (`loadBalancerEnable: true` in `apps/acm/submariner/values.yaml`); a
-  deployment without one sets it to `false` in that file, in its fork, before
-  the hub's first sync, and the gateway nodes must then be reachable from the
-  other sites on their own addresses and Submariner's tunnel ports.
+- **A load balancer only if a site's gateway must be directly reachable from
+  outside its cluster.** The RHOAI MaaS and inference Gateway Services are
+  configured as ClusterIP; AI Grid peers use the provider's router Route.
+  Submariner defaults to a LoadBalancer Service for two gateways. HyperShift
+  guests sharing a private host network can instead set
+  `ai-grid/submariner-private-network=true` on their ManagedClusters to use one
+  private-address gateway with no LoadBalancer Service. A site that needs
+  directly reachable external service IPs can opt in to MetalLB below.
 - **Block storage** with a default StorageClass (LVM Storage or equivalent)
   for RHOAI monitoring, the MaaS database replica, Prometheus and the usage
   logs; **object storage** with an ObjectBucketClaim class (NooBaa) on the
@@ -54,6 +54,7 @@ reads them; nothing identifies a site in a shared file.
 |---|---|---|
 | `ai-grid/enabled`, `ai-grid/role` | ManagedCluster labels | Every site ([cluster onboarding](../cluster-onboarding/README.md)). |
 | `ai-grid/metallb-pool=<first>-<last>` | ManagedCluster label | A site without a load balancer; more pools or an existing operator in `apps/metallb/values-<cluster>.yaml`, committed before the label ([MetalLB](../../../apps/metallb/README.md)). |
+| `ai-grid/submariner-private-network=true` | ManagedCluster label | HyperShift guest sites that use mutually reachable private host-network node addresses; disables Submariner's LB Service and selects one gateway. |
 | `ai-grid/platform-namespaces=true` | ManagedCluster label | Only managed OpenShift, whose platform owns the Loki operator namespace; not on bare metal. |
 | `ai-grid/machine-network=<cidr with _>` | ManagedCluster label | Only where the provider gateway sees peers as node machine addresses. On the qualified path (OVN-Kubernetes, host-network router) peers arrive from the router node's management address, which the ingress policy group admits; [cluster onboarding](../cluster-onboarding/README.md) says how to observe the path. |
 | `lokistack.storageClassName` and the object-storage mode | `apps/ai-grid-o11y/values-site.yaml` | The hub, before the usage-logs chart syncs ([usage logs](../../../apps/ai-grid-o11y/chart/README.md)). |

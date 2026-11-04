@@ -22,14 +22,21 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/ai-grid-cloud/ai-grid-cluster-gitops.git
-        targetRevision: HEAD
+        repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
+        targetRevision: hub-onboarding
         path: apps/acm/submariner
         helm:
           releaseName: acm-submariner
           parameters:
             - name: clusterName
               value: '{{ .name }}'
+            # LWE/HyperShift sites sharing a private host network can tunnel
+            # directly between worker addresses. Keep that mode site-scoped;
+            # cloud sites retain the LoadBalancer and two-gateway defaults.
+            - name: loadBalancerEnable
+              value: '{{ if eq (index .metadata.labels "ai-grid/submariner-private-network") "true" }}false{{ else }}true{{ end }}'
+            - name: gateways
+              value: '{{ if eq (index .metadata.labels "ai-grid/submariner-private-network") "true" }}1{{ else }}2{{ end }}'
       destination:
         server: https://kubernetes.default.svc
         namespace: open-cluster-management
