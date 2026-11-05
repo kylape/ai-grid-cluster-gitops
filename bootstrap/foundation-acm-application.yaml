@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-    targetRevision: hub-onboarding
+    targetRevision: hub-onboarding-sno-20261105
     path: apps/acm/manifests
     directory:
       # Keep foundation setup to ACM itself. The repository's full `acm`

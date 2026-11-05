@@ -10,7 +10,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-    targetRevision: hub-onboarding
+    targetRevision: hub-onboarding-sno-20261105
     path: apps/external-services/hub
   # maas-db, created untracked, holds the rhoai app's tenant RBAC Role; this
   # app's own objects name the external-services namespace.

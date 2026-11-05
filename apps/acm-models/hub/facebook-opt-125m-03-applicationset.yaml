@@ -37,7 +37,7 @@ spec:
       project: default
       source:
         repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-        targetRevision: hub-onboarding
+        targetRevision: hub-onboarding-sno-20261105
         path: apps/acm-models/facebook-opt-125m
       destination:
         server: '{{ if eq (index .metadata.labels "local-cluster") "true" }}https://kubernetes.default.svc{{ else }}{{ .server }}{{ end }}'

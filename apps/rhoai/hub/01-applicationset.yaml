@@ -48,7 +48,7 @@ spec:
       project: default
       sources:
         - repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-          targetRevision: hub-onboarding
+          targetRevision: hub-onboarding-sno-20261105
           ref: values
         # Immutable OCI snapshot from the 3.6.0 dev channel.
         - repoURL: oci://ghcr.io/opendatahub-io/odh-gitops/rhai-on-openshift-chart
@@ -114,7 +114,7 @@ spec:
                         {{- end }}
                     {{- end }}
         - repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-          targetRevision: hub-onboarding
+          targetRevision: hub-onboarding-sno-20261105
           path: apps/rhoai/gateway-hostname
           helm:
             releaseName: rhoai-gateway-hostname
@@ -125,7 +125,7 @@ spec:
                 value: '{{ .name }}'
                 forceString: true
         - repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-          targetRevision: hub-onboarding
+          targetRevision: hub-onboarding-sno-20261105
           path: apps/rhoai/catalog
           helm:
             releaseName: rhoai-nightly-catalog
