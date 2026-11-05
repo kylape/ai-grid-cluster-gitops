@@ -52,6 +52,12 @@ wait_for_argocd() {
 }
 wait_for_argocd
 
+# The root fans out every app at once. Apply its tracked controller sizing and
+# health configuration before that workload, then wait for the managed Argo CD
+# instance to roll out with the new resources.
+oc apply -f apps/gitops-config/manifests/argocd.yaml
+wait_for_argocd
+
 oc apply -f "bootstrap/${profile:+${profile}/}applicationset.yaml"
 oc apply -f bootstrap/openshift-gitops-admin.yaml
 oc patch consoles.operator.openshift.io cluster --patch '{ "spec": { "plugins": ["gitops-plugin"] } }' --type=merge
