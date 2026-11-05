@@ -36,7 +36,7 @@ spec:
       project: default
       source:
         repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-        targetRevision: hub-onboarding
+        targetRevision: hub-onboarding-sno-20261105
         path: apps/acm-models/maas
         directory:
           recurse: true

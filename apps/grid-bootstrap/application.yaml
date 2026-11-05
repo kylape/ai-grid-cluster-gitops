@@ -7,7 +7,7 @@ spec:
   project: default
   sources:
     - repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-      targetRevision: hub-onboarding
+      targetRevision: hub-onboarding-sno-20261105
       ref: values
     - repoURL: https://github.com/opendatahub-io/odh-gitops.git
       targetRevision: main
@@ -17,7 +17,7 @@ spec:
         valueFiles:
           - $values/apps/grid-bootstrap/values.yaml
     - repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-      targetRevision: hub-onboarding
+      targetRevision: hub-onboarding-sno-20261105
       path: apps/grid-bootstrap/policies
   destination:
     server: https://kubernetes.default.svc

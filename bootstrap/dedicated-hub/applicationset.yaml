@@ -51,7 +51,7 @@ spec:
         generators:
           - git:
               repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-              revision: hub-onboarding
+              revision: hub-onboarding-sno-20261105
               files:
                 - path: apps/odf/application.yaml
           - clusters:

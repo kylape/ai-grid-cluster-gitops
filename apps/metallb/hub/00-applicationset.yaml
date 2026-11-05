@@ -26,10 +26,10 @@ spec:
       project: default
       sources:
         - repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-          targetRevision: hub-onboarding
+          targetRevision: hub-onboarding-sno-20261105
           ref: values
         - repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-          targetRevision: hub-onboarding
+          targetRevision: hub-onboarding-sno-20261105
           path: apps/metallb/chart
           helm:
             releaseName: metallb

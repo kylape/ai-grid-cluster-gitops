@@ -15,7 +15,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/kylape/ai-grid-cluster-gitops.git
-        revision: hub-onboarding
+        revision: hub-onboarding-sno-20261105
         files:
           - path: apps/*/application.yaml
           # The usage-log store belongs to the dedicated-hub profile. A standard hub
