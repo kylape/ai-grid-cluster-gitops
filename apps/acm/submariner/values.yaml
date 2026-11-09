@@ -5,6 +5,11 @@ installNamespace: submariner-operator
 # -- Default to a LoadBalancer Service for cloud sites. The ApplicationSet
 # turns this off for ManagedClusters labelled ai-grid/submariner-private-network=true.
 loadBalancerEnable: true
+# -- NAT traversal for sites behind real NAT. The ApplicationSet turns this
+# off for private-network lab sites: their gateways share the host's public
+# address, so NAT discovery cannot classify a NAT that does not exist and
+# the cable never establishes. Direct pod-network reachability is assumed.
+nattEnable: true
 # -- Default gateway count for redundant cloud sites. The ApplicationSet uses
 # one gateway for private-network lab sites with a single worker.
 gateways: 2
