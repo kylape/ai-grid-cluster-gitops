@@ -21,5 +21,6 @@ metadata:
 spec:
   loadBalancerEnable: {{ .Values.loadBalancerEnable }}
   NATTEnable: {{ .Values.nattEnable }}
+  forceUDPEncaps: {{ .Values.forceUDPEncaps }}
   gatewayConfig:
     gateways: {{ .Values.gateways }}

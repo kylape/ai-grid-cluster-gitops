@@ -10,6 +10,11 @@ loadBalancerEnable: true
 # address, so NAT discovery cannot classify a NAT that does not exist and
 # the cable never establishes. Direct pod-network reachability is assumed.
 nattEnable: true
+# -- Force IPsec into UDP encapsulation. The ApplicationSet turns this on
+# for private-network lab sites: their only permitted cross-guest path is
+# the submariner UDP ports, and native ESP (IP protocol 50) cannot pass a
+# NetworkPolicy, whose ports express TCP/UDP/SCTP only.
+forceUDPEncaps: false
 # -- Default gateway count for redundant cloud sites. The ApplicationSet uses
 # one gateway for private-network lab sites with a single worker.
 gateways: 2

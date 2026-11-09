@@ -37,6 +37,8 @@ spec:
               value: '{{ if eq (index .metadata.labels "ai-grid/submariner-private-network") "true" }}false{{ else }}true{{ end }}'
             - name: nattEnable
               value: '{{ if eq (index .metadata.labels "ai-grid/submariner-private-network") "true" }}false{{ else }}true{{ end }}'
+            - name: forceUDPEncaps
+              value: '{{ if eq (index .metadata.labels "ai-grid/submariner-private-network") "true" }}true{{ else }}false{{ end }}'
             - name: gateways
               value: '{{ if eq (index .metadata.labels "ai-grid/submariner-private-network") "true" }}1{{ else }}2{{ end }}'
       destination:
